@@ -1,1 +1,6 @@
 .#*
+BUILD/*
+tmp/*
+SOURCES/*tar.gz
+RPMS/*
+SRPMS/*
