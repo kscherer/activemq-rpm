@@ -1,11 +1,11 @@
 %global _name          activemq
-%global _version       5.6.0
+%global _version       5.7.0
 %global _prefix /usr/share
 
 Summary: Apache ActiveMQ
 Name: %{_name}
 Version: %{_version}
-Release: 2%{?dist}
+Release: 1%{?dist}
 License: ASL 2.0
 Group: System Environment/Daemons
 URL: http://activemq.apache.org/

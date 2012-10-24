@@ -22,7 +22,7 @@
 
     <bean id="securityLoginService" class="org.eclipse.jetty.security.HashLoginService">
         <property name="name" value="ActiveMQRealm" />
-        <property name="config" value="${activemq.base}/conf/jetty-realm.properties" />
+        <property name="config" value="${activemq.conf}/jetty-realm.properties" />
     </bean>
 
     <bean id="securityConstraint" class="org.eclipse.jetty.util.security.Constraint">
@@ -91,9 +91,18 @@
         <property name="connectors">
             <list>
                 <bean id="Connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                    <property name="host" value="127.0.0.1"/>
                     <property name="port" value="8161" />
                 </bean>
+                <!--
+                    Enable this connector if you wish to use https with web console
+                -->
+                <!--
+                <bean id="SecureConnector" class="org.eclipse.jetty.server.ssl.SslSelectChannelConnector">
+                    <property name="port" value="8162" />
+                    <property name="keystore" value="file:${activemq.conf}/broker.ks" />
+                    <property name="password" value="password" />
+                </bean>
+                -->
             </list>
         </property>
 
