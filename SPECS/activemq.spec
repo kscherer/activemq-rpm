@@ -1,5 +1,5 @@
 %global _name          activemq
-%global _version       5.7.0
+%global _version       5.8.0
 %global _prefix /usr/share
 
 Summary: Apache ActiveMQ
@@ -67,7 +67,7 @@ install %{_sourcedir}/activemq.init.rh ${RPM_BUILD_ROOT}%{_initrddir}/%{name}
 install *.txt *.html ${RPM_BUILD_ROOT}%{docsdir}
 cp -r docs ${RPM_BUILD_ROOT}%{docsdir}
 
-install bin/run.jar bin/activemq-admin ${RPM_BUILD_ROOT}%{homedir}/bin
+install bin/activemq.jar bin/activemq-admin ${RPM_BUILD_ROOT}%{homedir}/bin
 #install --directory ${RPM_BUILD_ROOT}%{_bindir}
 #%{__ln_s} -f %{homedir}/bin/activemq-admin ${RPM_BUILD_ROOT}%{_bindir}
 
@@ -130,6 +130,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{_sysconfdir}/%{_name}/log4j.properties
 
 %changelog
+* Fri May 10 2013 Robert Valk <robert.valk@sixtree.com.au> - 5.8.0-1
+- Update activemq to version 5.8.0
+
 * Thu Jun 28 2012 Matthaus Litteken <matthaus@puppetlabs.com> - 5.6.0-2.pe
 - Update activemq.jetty.xml to 5.6.0 for changed classnames
 
