@@ -28,7 +28,7 @@
     <bean id="securityConstraint" class="org.eclipse.jetty.util.security.Constraint">
         <property name="name" value="BASIC" />
         <property name="roles" value="admin" />
-        <property name="authenticate" value="false" />
+        <property name="authenticate" value="true" />
     </bean>
     <bean id="securityConstraintMapping" class="org.eclipse.jetty.security.ConstraintMapping">
         <property name="constraint" ref="securityConstraint" />
@@ -54,15 +54,15 @@
                             <property name="logUrlOnStart" value="true" />
                         </bean>
                         <bean class="org.eclipse.jetty.webapp.WebAppContext">
-                            <property name="contextPath" value="/demo" />
-                            <property name="resourceBase" value="${activemq.home}/webapps/demo" />
-                            <property name="logUrlOnStart" value="true" />
-                        </bean>
-                        <bean class="org.eclipse.jetty.webapp.WebAppContext">
                             <property name="contextPath" value="/fileserver" />
                             <property name="resourceBase" value="${activemq.home}/webapps/fileserver" />
                             <property name="logUrlOnStart" value="true" />
                             <property name="parentLoaderPriority" value="true" />
+                        </bean>
+                        <bean class="org.eclipse.jetty.webapp.WebAppContext">
+                            <property name="contextPath" value="/api" />
+                            <property name="resourceBase" value="${activemq.home}/webapps/api" />
+                            <property name="logUrlOnStart" value="true" />
                         </bean>
                         <bean class="org.eclipse.jetty.server.handler.ResourceHandler">
                             <property name="directoriesListed" value="false" />
