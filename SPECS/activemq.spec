@@ -214,13 +214,13 @@ rm -rf $RPM_BUILD_ROOT
 * Mon Dec 10 2007 James CASEY <james.casey@cern.ch> - 5.0-SNAPSHOT-7
 - added symlink in /usr/bin for activemq-admin
 
-* Wed Nov 26 2007 James CASEY <james.casey@cern.ch> - 5.0-SNAPSHOT-6
+* Mon Nov 26 2007 James CASEY <james.casey@cern.ch> - 5.0-SNAPSHOT-6
 - fix bug with group name setting in init.d script
 
-* Wed Nov 26 2007 James CASEY <jamesc@lxb6118.cern.ch> - 5.0-SNAPSHOT-5
+* Mon  Nov 26 2007 James CASEY <jamesc@lxb6118.cern.ch> - 5.0-SNAPSHOT-5
 - fix typos in config file for activemq
 
-* Wed Nov 26 2007 James CASEY <jamesc@lxb6118.cern.ch> - 5.0-SNAPSHOT-4
+* Mon Nov 26 2007 James CASEY <jamesc@lxb6118.cern.ch> - 5.0-SNAPSHOT-4
 - add support for lib64 version of tanukiwrapper in config
 - turned off mysql persistence in the "default" config
 
