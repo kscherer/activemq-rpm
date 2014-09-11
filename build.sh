@@ -1,8 +1,8 @@
 #!/bin/bash
-if [ ! -f SOURCES/apache-activemq-5.9.1-bin.tar.gz ]; then
+if [ ! -f SOURCES/apache-activemq-5.10.0-bin.tar.gz ]; then
     (
         cd SOURCES
-        wget http://apache.mirror.nexicom.net/activemq/5.9.1/apache-activemq-5.9.1-bin.tar.gz
+        wget http://apache.mirror.nexicom.net/activemq/5.10.0/apache-activemq-5.10.0-bin.tar.gz
     )
 fi
 

@@ -1,7 +1,7 @@
 activemq-rpm
 ================
 
-Spec and sources to build activemq 5.9.1 binary and source rpm.
+Spec and sources to build activemq 5.10.0 binary and source rpm.
 
 My starting point was the Puppet Lab ActiveMQ 5.8.0 src rpm located here:
 

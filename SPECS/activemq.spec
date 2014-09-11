@@ -1,6 +1,6 @@
 Summary: Apache ActiveMQ
 Name: activemq
-Version: 5.9.1
+Version: 5.10.0
 Release: 2%{?dist}
 License: ASL 2.0
 Group: System Environment/Daemons

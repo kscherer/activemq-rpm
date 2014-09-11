@@ -15,9 +15,9 @@
  # use some of the following patterns to see MDC logging data
  #
  # %X{activemq.broker}
-@@ -60,6 +60,17 @@
- #
- # log4j.appender.logfile.layout.ConversionPattern=%d | %-20.20X{activemq.connector} | %-5p | %m | %c | %t%n
+@@ -62,6 +62,17 @@
+ 
+ log4j.throwableRenderer=org.apache.log4j.EnhancedThrowableRenderer
  
 +# Logging of messages sent - happens when the logging interceptor is enabled
 +log4j.logger.org.apache.activemq.broker.util.LoggingBrokerPlugin.Send=INFO,messages
