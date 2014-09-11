@@ -1,0 +1,194 @@
+#!/bin/bash
+#
+# Author:
+#     James Casey <james.casey@cern.ch>
+#     Logic taken from yaim component "config_gip"
+#     Modification of LFC info provider
+#
+# Provide MSG Broker service information for BDII
+#
+
+base=$(cd $(dirname $0); pwd)
+
+USAGE=$(basename $0)"  --site site_name [--cluster cluster_name] [--alias alias_name] [--vo="VO1,VO2"] [--verbose] [--failover to-host]"
+
+TEMP=$(getopt -o hc:f:l:s:v --long vo:,failover:,,alias:,site:,verbose -- "$@")
+eval set -- "$TEMP"
+
+
+# by default, the hostname to use is the current host
+SERVER_HOST=`hostname -f`
+# by default quiet operation
+VERBOSE='false'
+# by default, no site-name
+SITE_NAME=""
+# by default, production cluster
+ACTIVEMQ_CLUSTER='PROD'
+# by default, no failover host
+FAILOVER_HOST=""
+
+while true; do
+    case "$1" in
+        -a|--alias)
+            shift
+            SERVER_ALIAS="$1"
+            shift
+            ;;
+        -f|--failover)
+            shift
+            FAILOVER_HOST="$1"
+            shift
+            ;;
+        -c|--cluster)
+            shift
+            ACTIVEMQ_CLUSTER="$1"
+            shift
+            ;;
+        -s|--site)
+            shift
+            SITE_NAME="$1"
+            shift
+            ;;
+        --vo)
+            shift
+            VO_LIST="$VO_LIST $1"
+            shift
+            ;;
+        -v|--verbose)
+            VERBOSE='true'
+            shift
+            ;;
+        --rest)
+            REST='true'
+            shift
+            ;;
+        --stomp)
+            STOMP='true'
+            shift
+            ;;
+        -h|--help)
+            echo $USAGE
+            exit
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo "Unknown option '$1'"
+            exit
+            ;;
+    esac
+done
+
+if [ -z $SITE_NAME ] ; then
+    echo "ERROR : No site name defined" 1>&2;
+    exit 1;
+fi
+
+SERVER_ALIAS=${$ALIAS_HOST:-$SERVER_HOST}
+
+#######################################################################
+# system parameters
+START_TIME=$(stat -c %z /var/run/lfcdaemon.pid  2>/dev/null)
+ACTIVEMQ_VERSION=$(rpm -q --qf '%{VERSION}' activemq) 
+
+if [ ! $? == 0 ]; then
+    ACTIVEMQ_VERSION=""
+fi
+
+if [ "$VO_LIST" ]; then    
+    cat <<EOF
+dn: GlueServiceUniqueID=rest-msg-broker-${SERVER_ALIAS},mds-vo-name=resource,o=grid
+objectClass: GlueTop
+objectClass: GlueService
+GlueServiceUniqueID: rest-msg-broker-${SERVER_ALIAS}
+GlueServiceName: prod
+GlueServiceType: msg.broker.rest
+GlueServiceEndpoint:  http://${SERVER_ALIAS}/message
+GlueServiceURI: http://${SERVER_ALIAS}/message
+GlueServiceAccessPointURL: ${SERVER_ALIAS}
+GlueServiceStatus: OK
+GlueServiceStatusInfo: No Problems
+GlueServiceWSDL: unset
+GlueServiceSemantics: unset
+GlueForeignKey: GlueSiteUniqueID=${SITE_NAME}
+EOF
+
+    if [ -n "$START_TIME" ]; then
+	echo "GlueServiceStartTime: ${START_TIME}"
+
+    fi
+    if [ -n "$ACTIVEMQ_VERSION" ]; then
+	echo "GlueServiceVersion: ${ACTIVEMQ_VERSION}"
+    fi
+    for VO in $VO_LIST; do
+	echo "GlueServiceOwner: $VO"
+	echo "GlueServiceAccessControlRule: $VO"
+    done
+    
+    echo
+
+    cat <<EOF
+dn:  GlueServiceDataKey=cluster,GlueServiceUniqueID=rest-msg-broker-${SERVER_ALIAS},mds-vo-name=resource,o=grid
+objectClass: GlueTop
+objectClass: GlueServiceData
+objectClass: GlueKey
+objectClass: GlueSchemaVersion
+GlueServiceDataKey: cluster
+GlueServiceDataValue: ${ACTIVEMQ_CLUSTER}
+GlueChunkKey: GlueServiceUniqueID=rest-msg-broker-${SERVER_ALIAS}
+
+EOF
+
+# STOMP    
+    cat <<EOF
+dn: GlueServiceUniqueID=stomp-msg-broker-${SERVER_ALIAS},mds-vo-name=resource,o=grid
+objectClass: GlueTop
+objectClass: GlueService
+GlueServiceUniqueID: stomp-msg-broker-${SERVER_ALIAS}
+GlueServiceName: prod
+GlueServiceType: msg.broker.stomp
+GlueServiceAccessPointURL: ${SERVER_ALIAS}
+GlueServiceStatus: OK
+GlueServiceStatusInfo: No Problems
+GlueServiceWSDL: unset
+GlueServiceSemantics: unset
+GlueForeignKey: GlueSiteUniqueID=${SITE_NAME}
+EOF
+
+    if [ -n "$FAILOVER_HOST" ]; then
+        echo "GlueServiceEndpoint: failover://(stomp://${SERVER_HOST}:6163/,stomp://${FAILOVER_HOST}:6163/)"
+        echo "GlueServiceURI: failover://(stomp://${SERVER_HOST}:6163/,stomp://${FAILOVER_HOST}:6163/)"
+    else
+        echo "GlueServiceEndpoint: stomp://${SERVER_ALIAS}:6163/"
+        echo "GlueServiceURI: stomp://${SERVER_ALIAS}:6163/"
+    fi
+
+    if [ -n "$START_TIME" ]; then
+	echo "GlueServiceStartTime: ${START_TIME}"
+
+    fi
+    if [ -n "$ACTIVEMQ_VERSION" ]; then
+	echo "GlueServiceVersion: ${ACTIVEMQ_VERSION}"
+    fi
+    for VO in $VO_LIST; do
+	echo "GlueServiceOwner: $VO"
+	echo "GlueServiceAccessControlRule: $VO"
+    done
+    
+    echo
+
+    cat <<EOF
+dn:  GlueServiceDataKey=cluster,GlueServiceUniqueID=stomp-msg-broker-${SERVER_ALIAS},mds-vo-name=resource,o=grid
+objectClass: GlueTop
+objectClass: GlueServiceData
+objectClass: GlueKey
+objectClass: GlueSchemaVersion
+GlueServiceDataKey: cluster
+GlueServiceDataValue: ${ACTIVEMQ_CLUSTER}
+GlueChunkKey: GlueServiceUniqueID=stomp-msg-broker-${SERVER_ALIAS}
+
+EOF
+    
+  fi

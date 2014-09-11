@@ -1,0 +1,44 @@
+--- apache-activemq-5.9.1/conf/log4j.properties	2014-03-31 17:13:53.000000000 -0700
++++ apache-activemq-5.9.1/conf/log4j.properties	2014-04-20 13:13:31.394606392 -0700
+@@ -44,12 +44,12 @@
+ 
+ # File appender
+ log4j.appender.logfile=org.apache.log4j.RollingFileAppender
+-log4j.appender.logfile.file=${activemq.base}/data/activemq.log
++log4j.appender.logfile.file=${activemq.base}/log/activemq.log
+ log4j.appender.logfile.maxFileSize=1024KB
+ log4j.appender.logfile.maxBackupIndex=5
+ log4j.appender.logfile.append=true
+ log4j.appender.logfile.layout=org.apache.log4j.PatternLayout
+-log4j.appender.logfile.layout.ConversionPattern=%d | %-5p | %m | %c | %t%n
++log4j.appender.logfile.layout.ConversionPattern=%d [%-15.15t] %-5p %-30.30c{1} - %m%n
+ # use some of the following patterns to see MDC logging data
+ #
+ # %X{activemq.broker}
+@@ -60,6 +60,17 @@
+ #
+ # log4j.appender.logfile.layout.ConversionPattern=%d | %-20.20X{activemq.connector} | %-5p | %m | %c | %t%n
+ 
++# Logging of messages sent - happens when the logging interceptor is enabled
++log4j.logger.org.apache.activemq.broker.util.LoggingBrokerPlugin.Send=INFO,messages
++log4j.additivity.org.apache.activemq.broker.util.LoggingBrokerPlugin.Send=false
++log4j.appender.messages=org.apache.log4j.RollingFileAppender
++log4j.appender.messages.file=${activemq.base}/log/messages.log
++log4j.appender.messages.maxFileSize=10240KB
++log4j.appender.messages.maxBackupIndex=50
++log4j.appender.messages.append=true
++log4j.appender.messages.layout=org.apache.log4j.PatternLayout
++log4j.appender.messages.layout.ConversionPattern=%d [%-15.15t] - %m%n
++
+ ###########
+ # Audit log
+ ###########
+@@ -68,7 +79,7 @@
+ log4j.logger.org.apache.activemq.audit=INFO, audit
+ 
+ log4j.appender.audit=org.apache.log4j.RollingFileAppender
+-log4j.appender.audit.file=${activemq.base}/data/audit.log
++log4j.appender.audit.file=${activemq.base}/log/audit.log
+ log4j.appender.audit.maxFileSize=1024KB
+ log4j.appender.audit.maxBackupIndex=5
+ log4j.appender.audit.append=true
