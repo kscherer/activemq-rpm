@@ -1,11 +1,11 @@
 activemq-rpm
 ================
 
-Spec and sources to build activemq 5.7 binary and source rpm.
+Spec and sources to build activemq 5.8 binary and source rpm.
 
-My starting point was the Puppet Enterprise src rpm located here:
+My starting point was the Puppet Lab ActiveMQ src rpm located here:
 
-http://yum.puppetlabs.com/enterprise/sources/2.6.0/sources/el/6/SRPMS/pe-activemq-5.6.0-2.pe.el6.src.rpm
+http://yum.puppetlabs.com/el/6.5/dependencies/SRPMS/activemq-5.8.0-3.el6.src.rpm
 
 To build the source and binary rpm, the rpmbuild tool is necessary
 

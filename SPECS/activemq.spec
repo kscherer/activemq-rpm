@@ -1,98 +1,106 @@
-%global _name          activemq
-%global _version       5.7.0
-%global _prefix /usr/share
-
 Summary: Apache ActiveMQ
-Name: %{_name}
-Version: %{_version}
-Release: 1%{?dist}
+Name: activemq
+Version: 5.8.0
+Release: 3%{?dist}
 License: ASL 2.0
 Group: System Environment/Daemons
 URL: http://activemq.apache.org/
 Source0: http://www.apache.org/dist//activemq/apache-activemq/%{version}/apache-activemq-%{version}-bin.tar.gz
-Source1: activemq.init.rh
+Source1: wlcg-patch.tgz
 Source2: activemq.xml
-Source3: activemq.log4j.properties
-Source4: activemq.jetty.xml
-Source5: activemq.credentials.properties
-Source6: activemq.jetty-realm.properties
-Source7: activemq-wrapper.conf
+Source3: jetty-realm.properties
+Source4: jetty.xml
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 BuildArch: noarch
-Requires: tanukiwrapper >= 3.5.9
+Requires: tanukiwrapper >= 3.2.0
 
-#%define buildver 5.1.0
-
-%define homedir %{_prefix}/%{_name}
-%define libdir %{homedir}/lib
-%define datadir /var/cache/%{_name}
+%define homedir /usr/share/%{name}
+%define libdir /var/lib/%{name}
+%define libexecdir /usr/libexec/%{name}
+%define cachedir /var/cache/%{name}
 %define docsdir /usr/share/doc/%{name}-%{version}
 
 %description
 ApacheMQ is a JMS Compliant Messaging System
 
+%package info-provider
+Summary: An LDAP information provider for activemq
+Group:grid/lcg
+%description info-provider
+An LDAP infomation provider for activemq
+
+%package meta
+Summary: A metapackage
+Group:grid/lcg
+Requires: activemq = %{version}-%{release}, activemq-info-provider = %{version}-%{release}
+%description meta
+A metapackage
+
 %prep
-%setup -q -n apache-activemq-%{version}
+%setup -q -a1 -n apache-activemq-%{version}
 
 %build
+install --directory ${RPM_BUILD_ROOT}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install --directory ${RPM_BUILD_ROOT}
 install --directory ${RPM_BUILD_ROOT}%{homedir}
 install --directory ${RPM_BUILD_ROOT}%{homedir}/bin
 install --directory ${RPM_BUILD_ROOT}%{docsdir}
-install --directory ${RPM_BUILD_ROOT}%{libdir}
-install --directory ${RPM_BUILD_ROOT}%{homedir}/webapps
-install --directory ${RPM_BUILD_ROOT}%{datadir}
-install --directory ${RPM_BUILD_ROOT}%{datadir}/data
-install --directory ${RPM_BUILD_ROOT}%{_localstatedir}/log/%{name}
-install --directory ${RPM_BUILD_ROOT}%{_localstatedir}/run/%{name}
-install --directory ${RPM_BUILD_ROOT}%{_sysconfdir}/%{_name}
+install --directory ${RPM_BUILD_ROOT}%{libdir}/lib
+install --directory ${RPM_BUILD_ROOT}%{libexecdir}
+install --directory ${RPM_BUILD_ROOT}%{libdir}/webapps
+install --directory ${RPM_BUILD_ROOT}%{cachedir}
+install --directory ${RPM_BUILD_ROOT}%{cachedir}/data
+install --directory ${RPM_BUILD_ROOT}/var/log/%{name}
+install --directory ${RPM_BUILD_ROOT}/var/run/%{name}
+install --directory ${RPM_BUILD_ROOT}/etc/%{name}
 install --directory ${RPM_BUILD_ROOT}%{_initrddir}
+install --directory ${RPM_BUILD_ROOT}/etc/httpd/conf.d
 
 # Config files
-install %{_sourcedir}/activemq.xml ${RPM_BUILD_ROOT}/%{_sysconfdir}/%{_name}/activemq.xml
-install %{_sourcedir}/activemq-wrapper.conf ${RPM_BUILD_ROOT}/%{_sysconfdir}/%{_name}/activemq-wrapper.conf
-install %{_sourcedir}/activemq.credentials.properties ${RPM_BUILD_ROOT}/%{_sysconfdir}/%{_name}/credentials.properties
-install %{_sourcedir}/activemq.jetty.xml ${RPM_BUILD_ROOT}/%{_sysconfdir}/%{_name}/jetty.xml
-install %{_sourcedir}/activemq.log4j.properties ${RPM_BUILD_ROOT}/%{_sysconfdir}/%{_name}/log4j.properties
-install %{_sourcedir}/activemq.jetty-realm.properties ${RPM_BUILD_ROOT}/%{_sysconfdir}/%{_name}/jetty-realm.properties
+install %{SOURCE2} ${RPM_BUILD_ROOT}/etc/%{name}
+install conf/credentials.properties ${RPM_BUILD_ROOT}/etc/%{name}
+install conf/jetty.xml  ${RPM_BUILD_ROOT}/etc/%{name}
+install %{SOURCE3} ${RPM_BUILD_ROOT}/etc/%{name}
+install %{SOURCE4} ${RPM_BUILD_ROOT}/etc/%{name}
+install conf/log4j.properties ${RPM_BUILD_ROOT}/etc/%{name}
+install conf/activemq-wrapper.conf ${RPM_BUILD_ROOT}/etc/%{name}
+install conf/activemq-httpd.conf ${RPM_BUILD_ROOT}/etc/httpd/conf.d
 
 # startup script
-#install bin/activemq ${RPM_BUILD_ROOT}%{_initrddir}/%{name}
-install %{_sourcedir}/activemq.init.rh ${RPM_BUILD_ROOT}%{_initrddir}/%{name}
+install bin/activemq ${RPM_BUILD_ROOT}%{_initrddir}
 
 # Bin and doc dirs
-install *.txt *.html ${RPM_BUILD_ROOT}%{docsdir}
+install *.txt *.html LICENSE NOTICE ${RPM_BUILD_ROOT}%{docsdir}
 cp -r docs ${RPM_BUILD_ROOT}%{docsdir}
 
-install bin/run.jar bin/activemq-admin ${RPM_BUILD_ROOT}%{homedir}/bin
-#install --directory ${RPM_BUILD_ROOT}%{_bindir}
-#%{__ln_s} -f %{homedir}/bin/activemq-admin ${RPM_BUILD_ROOT}%{_bindir}
+install bin/activemq.jar bin/activemq-admin ${RPM_BUILD_ROOT}%{homedir}/bin
+install --directory ${RPM_BUILD_ROOT}/usr/bin
+%{__ln_s} -f %{homedir}/bin/activemq-admin ${RPM_BUILD_ROOT}/usr/bin
 
 # Runtime directory
-cp -r lib/* ${RPM_BUILD_ROOT}%{libdir}
-cp -r webapps/admin ${RPM_BUILD_ROOT}%{homedir}/webapps
+cp -r lib ${RPM_BUILD_ROOT}%{libdir}
+cp -r webapps/admin ${RPM_BUILD_ROOT}%{libdir}/webapps
+
+# Info provider
+install info-provider-activemq ${RPM_BUILD_ROOT}/%{libexecdir}
 
 pushd ${RPM_BUILD_ROOT}%{homedir}
-    [ -d conf ] || %{__ln_s} -f %{_sysconfdir}/%{_name} conf
-    [ -d data ] || %{__ln_s} -f %{datadir}/data data
+    [ -d conf ] || %{__ln_s} -f /etc/%{name} conf
+    [ -d data ] || %{__ln_s} -f %{cachedir}/data data
     [ -d docs ] || %{__ln_s} -f %{docsdir} docs
-    [ -d log ] || %{__ln_s} -f %{_localstatedir}/log/%{name} log 
+    [ -d lib ] || %{__ln_s} -f %{libdir}/lib lib
+    [ -d log ] || %{__ln_s} -f /var/log/%{name} log
+    [ -d webapps ] || %{__ln_s} -f %{libdir}/webapps webapps
 popd
-
 
 %pre
 # Add the "activemq" user and group
-/usr/sbin/groupadd -r %{name} 2> /dev/null || :
-
-if getent passwd activemq > /dev/null ; then
-  /usr/sbin/usermod -s /sbin/nologin activemq 2> /dev/null || :
-else
-  /usr/sbin/useradd -c "Apache Activemq" -g %{name} \
-    -s /sbin/nologin -r -d %{homedir} %{name} 2> /dev/null || :
-fi
+# we need a shell to be able to use su - later
+/usr/sbin/groupadd -g 92 -r activemq 2> /dev/null || :
+/usr/sbin/useradd -c "Apache Activemq" -u 92 -g activemq \
+    -s /bin/bash -r -d /usr/share/activemq activemq 2> /dev/null || :
 
 # backup and move original config files
 if [ -e /etc/%{name}/activemq.xml ]; then
@@ -116,32 +124,12 @@ fi
 
 %post
 # install activemq (but don't activate)
-/sbin/chkconfig --add %{name}
-
-%triggerun -- activemq
-if [ -e /etc/%{name}/activemq.xml ]; then
-   mv -f /etc/%{name}/activemq.xml /etc/%{name}/activemq.xml.orig
-fi
-if [ -e /etc/httpd/conf.d/activemq-wrapper.conf ]; then
-   mv -f /etc/httpd/conf.d/activemq-wrapper.conf /etc/httpd/conf.d/activemq-wrapper.conf.orig
-fi
-if [ -e /etc/%{name}/log4j.properties ]; then
-   mv -f /etc/%{name}/log4j.properties /etc/%{name}/log4j.properties.orig
-fi
-if [ -e /etc/%{name}/credentials.properties ]; then
-   mv -f /etc/%{name}/credentials.properties /etc/%{name}/credentials.properties.orig
-fi
-if [ -e /etc/%{name}/jetty.xml ]; then
-   mv -f /etc/%{name}/jetty.xml /etc/%{name}/jetty.xml.orig
-fi
-if [ -e /etc/%{name}/jetty-realm.properties ]; then
-   mv -f /etc/%{name}/jetty-realm.properties /etc/%{name}/jetty-realm.properties.orig
-fi
+/sbin/chkconfig --add activemq
 
 %preun
 if [ $1 = 0 ]; then
-    [ -f /var/lock/subsys/%{name} ] && %{_initrddir}/%{name} stop
-    [ -f %{_initrddir}/%{name} ] && /sbin/chkconfig --del %{name}
+    [ -f /var/lock/subsys/activemq ] && %{_initrddir}/activemq stop
+    [ -f %{_initrddir}/activemq ] && /sbin/chkconfig --del activemq
 fi
 
 %postun
@@ -149,68 +137,44 @@ fi
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-
 %files
 %defattr(-,root,root)
-#%attr(755,root,root) %{_bindir}/activemq-admin
 %{homedir}
-%{homedir}/webapps
 %docdir %{docsdir}
 %{docsdir}
 %{libdir}
-%attr(775,activemq,activemq) %dir %{_localstatedir}/log/%{name}
-%attr(775,activemq,activemq) %dir %{_localstatedir}/run/%{name}
-%attr(755,activemq,activemq) %dir %{datadir}/data
-%attr(755,root,root) %{_initrddir}/%{name}
-%config(noreplace) %{_sysconfdir}/%{_name}/activemq.xml
-%config(noreplace) %{_sysconfdir}/%{_name}/activemq-wrapper.conf
-%config(noreplace) %attr(750,root,activemq) %{_sysconfdir}/%{_name}/credentials.properties
-%config(noreplace) %{_sysconfdir}/%{_name}/jetty.xml
-%config(noreplace) %{_sysconfdir}/%{_name}/jetty-realm.properties
-%config(noreplace) %{_sysconfdir}/%{_name}/log4j.properties
+%defattr(644,root,root)
+%{libdir}/webapps/admin/WEB-INF/web.xml
+%config(noreplace) /etc/httpd/conf.d/activemq-httpd.conf
+%config(noreplace) /etc/%{name}/*
+%attr(755,root,root) /usr/bin/activemq-admin
+%attr(755,activemq,activemq) %dir /var/log/%{name}
+%attr(755,activemq,activemq) %dir /var/run/%{name}
+%attr(775,root,activemq) %dir %{cachedir}/data
+%attr(755,root,root) %{_initrddir}/activemq
+
+%files info-provider
+%defattr(-,root,root)
+%attr(755,root,root) %{libexecdir}/info-provider-activemq
 
 %changelog
-* Thu Jun 28 2012 Matthaus Litteken <matthaus@puppetlabs.com> - 5.6.0-2.pe
-- Update activemq.jetty.xml to 5.6.0 for changed classnames
+* Thu Oct 17 2013 Melissa Stone <melissa@puppetlabs.com> - 5.8.0-3
+* It turns out rpmlint is a valuable tool to use
 
-* Thu Jun 21 2012 Moses Mendoza <moses@puppetlabs.com> - 5.6.0-1.pe
-- Update activemq to version 5.6.0
+* Wed Oct 16 2013 Melissa Stone <melissa@puppetlabs.com> - 5.8.0-2
+* Conf file fixes that were initially missed
 
-* Wed Mar 21 2012 Michael Stahnke <stahnma@puppetlabs.com> - 5.5.0-7.pe
-- Ensure admin interface is only listening on localhost
+* Tue Oct 15 2013 Melissa Stone <melissa@puppetlabs.com> - 5.8.0-1
+* Update for 5.8.0
 
-* Thu Oct 27 2011 Michael Stahnke <stahnma@puppetlabs.com> - 5.5.0-6.5.pe
-- Update ActiveMQ configuration
+* Fri Sep 02 2011 Michael Stahnke <stahnma@fedoraproject.org> - 5.5.0-1
+- Update for 5.5.0
 
-* Thu Oct 27 2011 Michael Stahnke <stahnma@puppetlabs.com> - 5.5.0-6.4.pe
-- Don't explicitly depend on java
-
-* Thu Sep 15 2011 Matthaus Litteken <matthaus@puppetlabs.com> - 5.5.0-6.3.pe
-- Init script fixed to recreate /var/run/activemq as needed.
-
-* Thu Sep 15 2011 Matthaus Litteken <matthaus@puppetlabs.com> - 5.5.0-6.2.pe
-- Init script fixed to give user a shell.
-
-* Thu Sep 15 2011 Michael Stahnke <stahnma@puppetlabs.com> - 5.5.0-5.1.pe
-- Init script typo fixed
-
-* Wed Sep 07 2011 Michael Stahnke <stahnma@puppetlabs.com> - 5.5.0-5.pe
-- Useradd no longer specifies a uid
-
-* Fri Aug 19 2011 Matthaus Litteken <matthaus@puppetlabs.com> 5.5.0-4.pe
-- Updated group and permissions on datadir. Bumped release to 4.
-
-* Thu Aug 18 2011 Matthaus Litteken <matthaus@puppetlabs.com> 5.5.0-3
-- Bumped release to 3 for PE 1.2.
-
-* Thu May 12 2011 Ken Barber <ken@puppetlabs.com> 5.5.0-2
-- Updated to 5.5.0. Adapted to PE.
-
-* Sat Jan 16 2010 R.I.Pienaar <rip@devco.net> 5.3.0-1
-- Adjusted for ActiveMQ 5.3.0 
+* Sat Jan 16 2010 R.I.Pienaar <rip@devco.net> 5.3.0
+- Adjusted for ActiveMQ 5.3.0
 
 * Wed Oct 29 2008 James Casey <james.casey@cern.ch> 5.2.0-2
-- fixed defattr on subpackages 
+- fixed defattr on subpackages
 
 * Tue Sep 02 2008 James Casey <james.casey@cern.ch> 5.2.0-1
 - Upgraded to activemq 5.2.0
@@ -226,48 +190,3 @@ rm -rf $RPM_BUILD_ROOT
 
 * Wed Aug 27 2008 James Casey <james.casey@cern.ch> 5.1.0-5
 - changed glue path from mds-vo-name=local to =resource
-
-* Tue Aug 05 2008 James Casey <james.casey@cern.ch> 5.1.0-4
-- fixed up info-provider to give both REST and STOMP endpoints
-
-* Mon Aug 04 2008 James Casey <james.casey@cern.ch> 5.1.0-3
-- reverted out APP_NAME change to ActiveMQ from init.d since it 
-  causes too many problems
-* Mon Aug 04 2008 James Casey <james.casey@cern.ch> 5.1.0-2
-- Added info-provider
-- removed mysql as a requirement
-
-* Thu Mar 20 2008 Daniel RODRIGUES <daniel.rodrigues@cern.ch> - 5.1-SNAPSHOT-1
-- Changed to version 5.1 SNAPSHOT of 18 Mar, fizing AMQ Message Store 
-- small fixes to makefile
-
-* Fri Dec 14 2007 James CASEY <james.casey@cern.ch> - 5.0.0-3rc4
-- Added apache config file to forward requests to Jetty
-
-* Thu Dec 13 2007 James CASEY <james.casey@cern.ch> - 5.0.0-2rc4
-- fixed /usr/bin symlink
-- added useJmx to the default config
-
-* Thu Dec 13 2007 James CASEY <james.casey@cern.ch> - 5.0.0-RC4.1
-- Moved to RC4 of the 5.0.0 release candidates
-
-* Mon Dec 10 2007 James CASEY <james.casey@cern.ch> - 5.0-SNAPSHOT-7
-- added symlink in /usr/bin for activemq-admin
-
-* Mon Nov 26 2007 James CASEY <james.casey@cern.ch> - 5.0-SNAPSHOT-6
-- fix bug with group name setting in init.d script
-
-* Mon  Nov 26 2007 James CASEY <jamesc@lxb6118.cern.ch> - 5.0-SNAPSHOT-5
-- fix typos in config file for activemq
-
-* Mon Nov 26 2007 James CASEY <jamesc@lxb6118.cern.ch> - 5.0-SNAPSHOT-4
-- add support for lib64 version of tanukiwrapper in config
-- turned off mysql persistence in the "default" config
-
-* Wed Oct 17 2007 James CASEY <jamesc@lxb6118.cern.ch> - 5.0-SNAPSHOT-2
-- more re-org to mirror how tomcat is installed.
-- support for running as activemq user
-
-* Tue Oct 16 2007 James CASEY <jamesc@lxb6118.cern.ch> - 5.0-SNAPSHOT-1
-- Initial Version
-

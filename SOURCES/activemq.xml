@@ -32,7 +32,7 @@
     <!--
         The <broker> element is used to configure the ActiveMQ broker.
     -->
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" dataDirectory="${activemq.data}" useJmx="true" persistent="false">
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" dataDirectory="${activemq.base}/data">
 
         <!--
           For better performances use VM cursor and small memory limit.
@@ -50,12 +50,12 @@
         <destinationPolicy>
             <policyMap>
               <policyEntries>
-                <policyEntry topic=">" producerFlowControl="false" memoryLimit="5mb">
+                <policyEntry topic=">" producerFlowControl="true" memoryLimit="1mb">
                   <pendingSubscriberPolicy>
                     <vmCursor />
                   </pendingSubscriberPolicy>
                 </policyEntry>
-                <policyEntry queue=">" producerFlowControl="false" memoryLimit="20mb">
+                <policyEntry queue=">" producerFlowControl="true" memoryLimit="1mb">
                   <!--
                     Use VM cursor for better latency
                     For more information, see:
@@ -126,7 +126,7 @@
 
 
         <!--
-          The systemUsage controls the maximum amount of space the broker will 
+          The systemUsage controls the maximum amount of space the broker will
           use before slowing down producers. For more information, see:
 
           http://activemq.apache.org/producer-flow-control.html
@@ -134,18 +134,18 @@
         <systemUsage>
             <systemUsage>
                 <memoryUsage>
-                    <memoryUsage limit="200 mb"/>
+                    <memoryUsage limit="20 mb"/>
                 </memoryUsage>
                 <storeUsage>
                     <storeUsage limit="1 gb"/>
                 </storeUsage>
                 <tempUsage>
-                    <tempUsage limit="1 gb"/>
+                    <tempUsage limit="100 mb"/>
                 </tempUsage>
             </systemUsage>
         </systemUsage>
 
-        <!-- 
+        <!--
           The transport connectors expose ActiveMQ over a given protocol to
           clients and other brokers. For more information, see:
 
