@@ -106,26 +106,6 @@ popd
 /usr/sbin/useradd -c "Apache Activemq" -u 92 -g activemq \
     -s /bin/bash -r -d /usr/share/activemq activemq 2> /dev/null || :
 
-# backup and move original config files
-if [ -e /etc/%{name}/activemq.xml ]; then
-   mv -f /etc/%{name}/activemq.xml /etc/%{name}/activemq.xml.orig
-fi
-if [ -e /etc/httpd/conf.d/activemq-wrapper.conf ]; then
-   mv -f /etc/httpd/conf.d/activemq-wrapper.conf /etc/httpd/conf.d/activemq-wrapper.conf.orig
-fi
-if [ -e /etc/%{name}/log4j.properties ]; then
-   mv -f /etc/%{name}/log4j.properties /etc/%{name}/log4j.properties.orig
-fi
-if [ -e /etc/%{name}/credentials.properties ]; then
-   mv -f /etc/%{name}/credentials.properties /etc/%{name}/credentials.properties.orig
-fi
-if [ -e /etc/%{name}/jetty.xml ]; then
-   mv -f /etc/%{name}/jetty.xml /etc/%{name}/jetty.xml.orig
-fi
-if [ -e /etc/%{name}/jetty-realm.properties ]; then
-   mv -f /etc/%{name}/jetty-realm.properties /etc/%{name}/jetty-realm.properties.orig
-fi
-
 %post
 # install activemq (but don't activate)
 /sbin/chkconfig --add activemq
